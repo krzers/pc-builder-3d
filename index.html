@@ -146,8 +146,10 @@ button{font:inherit;color:inherit;cursor:pointer}
 .btn:disabled{background:none;color:var(--ink-3);cursor:default;border:1px dashed var(--line)}
 .btn.sec2{flex:0 0 auto;background:var(--card);color:var(--ink);border:1px solid var(--line)}
 .btn.sec2:hover{border-color:var(--ink);background:var(--card);color:var(--ink)}
-#dragghost{position:fixed;left:0;top:0;z-index:50;width:150px;pointer-events:none;background:var(--card);border:2px solid var(--ink);border-radius:10px;overflow:hidden;box-shadow:0 18px 40px rgba(0,0,0,.3);transform:translate(-50%,-60%) rotate(-4deg);font-size:12.5px;font-weight:600}
-#dragghost .pic{aspect-ratio:4/3}#dragghost div.nm{padding:6px 8px;line-height:1.3}
+#dragghost{position:fixed;left:0;top:0;z-index:50;width:250px;pointer-events:none;will-change:transform}
+#dragghost img{display:block;width:100%;filter:drop-shadow(0 18px 16px rgba(0,0,0,.35));animation:lift .18s cubic-bezier(.2,.8,.2,1)}
+#dragghost .nm{display:inline-block;background:var(--ink);color:var(--bg);font-size:12.5px;font-weight:600;padding:5px 10px;border-radius:6px}
+@keyframes lift{from{transform:scale(.6);opacity:.3}}
 body.dragging,body.dragging *{cursor:grabbing!important}
 
 .sum{display:flex;flex-direction:column;gap:10px}
@@ -386,9 +388,9 @@ $('reset').addEventListener('click',()=>{build={};preview=null;isSample=false;st
 let drag=null;const BENCH=$('bench');
 function overBench(x,y){const r=BENCH.getBoundingClientRect();return x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom}
 function startDrag(x,y){drag.on=true;const d=describe(drag.k,drag.it),g=document.createElement('div');g.id='dragghost';const u=thumbs.get(drag.k+':'+drag.it.id);
- g.innerHTML=`<div class="pic ready">${u?`<img src="${u}" alt="">`:''}</div><div class="nm">${esc(d.n)}</div>`;document.body.appendChild(g);drag.g=g;document.body.classList.add('dragging');
+ g.innerHTML=u?`<img src="${u}" alt="">`:`<span class="nm">${esc(d.n)}</span>`;document.body.appendChild(g);drag.g=g;document.body.classList.add('dragging');
  drag.blocked=check(drag.k,drag.it).block.length>0;moveDrag(x,y)}
-function moveDrag(x,y){drag.g.style.transform=`translate(${x}px,${y}px) translate(-50%,-60%) rotate(-4deg)`;const ov=overBench(x,y);if(ov===drag.over)return;drag.over=ov;
+function moveDrag(x,y){drag.g.style.transform=`translate(${x}px,${y}px) translate(-50%,-55%)`;const ov=overBench(x,y);if(ov===drag.over)return;drag.over=ov;
  BENCH.classList.toggle('drop',ov);$('stagemsg').textContent=drag.blocked?'ชิ้นนี้ใส่กับเครื่องนี้ไม่ได้':`ปล่อยเพื่อใส่${META[drag.k].t}`;BENCH.classList.toggle('eject',ov&&drag.blocked);
  if(drag.k!=='case'){preview=ov?{k:drag.k,it:drag.it}:null;renderHud();if(window.scene3d)scene3d.sync()}}
 function stopDrag(){if(drag&&drag.g)drag.g.remove();document.body.classList.remove('dragging');BENCH.classList.remove('drop','eject')}
