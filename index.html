@@ -328,7 +328,7 @@ let io=null;
 function renderPanel(fresh){
  const k=step<ORDER.length?ORDER[step]:'sum',m=META[k],L=$('list');
  const tot=ORDER.length+1,nb=k==='sum'?0:DATA[k].filter(it=>check(k,it).block.length).length,na=k==='sum'?0:DATA[k].length-nb;
- $('ph').innerHTML=`<div class="prog" aria-hidden="true">${[...Array(tot).keys()].map(i=>`<i class="${i===step?'c':(i<ORDER.length&&build[ORDER[i]])?'d':''}"></i>`).join('')}</div><div class="eb">ขั้นที่ ${step+1} / ${tot}${isSample?'<em>สเปคตัวอย่าง</em>':''}</div><h1>${m.h}</h1><p>${m.p}</p>${k==='sum'?'':`<div class="cnt"><span><b>${na}</b>รุ่นที่ใส่ได้</span>${nb?`<span class="x"><b>${nb}</b>รุ่นใส่ไม่ได้</span>`:''}</div>`}`;
+ $('ph').innerHTML=`<div class="prog" aria-hidden="true">${[...Array(tot).keys()].map(i=>`<i class="${i===step?'c':(i<ORDER.length&&build[ORDER[i]])?'d':''}"></i>`).join('')}</div>${isSample?'<div class="eb"><em>สเปคตัวอย่าง</em></div>':''}<h1>${m.h}</h1><p>${m.p}</p>${k==='sum'?'':`<div class="cnt"><span><b>${na}</b>รุ่นที่ใส่ได้</span>${nb?`<span class="x"><b>${nb}</b>รุ่นใส่ไม่ได้</span>`:''}</div>`}`;
  const keep=fresh?0:L.scrollTop;
  if(k==='sum'){L.innerHTML=summaryHTML()}
  else{
@@ -389,7 +389,7 @@ function render(fresh){renderRail();renderPanel(fresh);renderHud();$('empty').hi
 
 /* clicks */
 let suppressClick=false;
-$('rail').addEventListener('click',e=>{const b=e.target.closest('.slot');if(b&&!b.disabled)go(+b.dataset.i)});
+$('rail').addEventListener('click',e=>{const b=e.target.closest('.slot');if(!b||b.disabled)return;const i=+b.dataset.i;if(i===step)setFold(!APP.classList.contains('fold'));else{setFold(false);go(i)}});
 const LIST=$('list');
 function cardItem(c){return{k:c.dataset.k,it:DATA[c.dataset.k][+c.dataset.i]}}
 LIST.addEventListener('click',e=>{if(suppressClick){suppressClick=false;return}const g=e.target.closest('[data-go]');if(g){go(+g.dataset.go);return}const c=e.target.closest('.card');if(c){const{k,it}=cardItem(c);select(k,it)}});
@@ -403,7 +403,9 @@ $('next').addEventListener('click',()=>{
 });
 $('reset').addEventListener('click',()=>{build={};preview=null;isSample=false;step=0;save();render(true);toast('ล้างสเปคแล้ว เริ่มจากเลือกเคสได้เลย')});
 
-$('fold').addEventListener('click',()=>{const f=document.querySelector('.app').classList.toggle('fold');$('fold').setAttribute('aria-expanded',String(!f));$('fold').setAttribute('aria-label',f?'แสดงรายการชิ้นส่วน':'ซ่อนรายการชิ้นส่วน');$('shelf').inert=f;userMoved=false;if(window.scene3d)scene3d.sync();try{localStorage.setItem('pcb3d-fold',f?'1':'')}catch(e){}});
+const APP=document.querySelector('.app');
+function setFold(f){if(APP.classList.contains('fold')===f)return;APP.classList.toggle('fold',f);$('fold').setAttribute('aria-expanded',String(!f));$('fold').setAttribute('aria-label',f?'แสดงรายการชิ้นส่วน':'ซ่อนรายการชิ้นส่วน');$('shelf').inert=f;userMoved=false;if(window.scene3d)scene3d.sync()}
+$('fold').addEventListener('click',()=>setFold(!APP.classList.contains('fold')));
 $('fold').setAttribute('aria-label','ซ่อนรายการชิ้นส่วน');
 /* drag a card onto the stage */
 let drag=null;const BENCH=$('bench');
