@@ -187,8 +187,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .ph.enter h1,.ph.enter p,.ph.enter .cnt,.ph.enter .fmts{animation:slidein .45s cubic-bezier(.2,.8,.2,1) both}
 .ph.enter p{animation-delay:.05s}.ph.enter .cnt{animation-delay:.1s}.ph.enter .fmts{animation-delay:.14s}
 @keyframes slidein{from{opacity:0;transform:translateX(14px)}}
-.bench::before{content:"";position:absolute;inset:-20%;background:radial-gradient(38% 34% at 72% 24%,color-mix(in srgb,var(--acc) 30%,transparent),transparent 70%),radial-gradient(34% 30% at 18% 82%,color-mix(in srgb,var(--acc) 16%,transparent),transparent 70%);animation:drift 16s ease-in-out infinite alternate;pointer-events:none}
-@keyframes drift{to{transform:translate(4%,-3%) scale(1.08)}}
+.bench::before{content:"";position:absolute;inset:0;background:radial-gradient(62% 58% at 50% 56%,color-mix(in srgb,var(--acc) 13%,transparent),transparent 74%);pointer-events:none}
 #fx{position:absolute;inset:0;pointer-events:none;opacity:0}
 #fx.ok{background:radial-gradient(60% 60% at 50% 50%,color-mix(in srgb,var(--acc) 30%,transparent),transparent 75%);animation:flash .6s ease-out}
 #fx.bad{box-shadow:inset 0 0 120px 30px color-mix(in srgb,var(--bad) 55%,transparent);animation:flash .5s ease-out}
@@ -675,7 +674,7 @@ let userMoved=false;
    if(lastIds[k]!==b[k].id&&!reduce&&Object.keys(lastIds).length){gp.userData.t=0;gp.position.z=160;anims.push(gp)}}
   if(preview&&preview.k!=='case'){const b2={...b,[preview.k]:preview.it},L2=layout(b2),gp=new T.Group();const pvBad=check(preview.k,preview.it).block.length>0;ghostEdge=pvBad?0xe2433d:new T.Color(ACC[preview.k][0]).multiplyScalar(.7).getHex();ghostMat=new T.MeshStandardMaterial({color:pvBad?0xe2433d:ACC[preview.k][0],transparent:true,opacity:pvBad?.42:.5,depthWrite:false,roughness:.7});
    BUILDERS[preview.k](gp,L2,b2);ghostMat=null;root.add(gp);if(pvBad&&!reduce){gp.userData.shake=1;shakers.push(gp)}}
-  accGoal.set(ACC[curKey()][0]);const dk=isDark();gridMat.color.set(dk?0xffffff:0x1a1c22);gridMat.opacity=dk?.1:.16;glowMat.opacity=dk?.38:.6;glow.scale.setScalar(Math.max(L.D,L.W*2)/520);
+  accGoal.set(ACC[curKey()][0]);const dk=isDark();gridMat.color.set(dk?0xffffff:0x1a1c22);gridMat.opacity=dk?.1:.16;glowMat.opacity=dk?.55:.7;glow.scale.setScalar(Math.max(L.D,L.W*2)/430);
   const cur=ORDER[step],gk=preview&&preview.k==='gpu'?preview.it:b.gpu;
   if(cur==='gpu'&&gk){const over=gk.len>L.c.gpuMax,x=L.rear+8+L.c.gpuMax,pm=new T.MeshBasicMaterial({color:over?0xe2433d:0x121310,transparent:true,opacity:over?.28:.13,side:T.DoubleSide,depthWrite:false});
    const pl=new T.Mesh(new T.PlaneGeometry(Math.min(L.W-10,190),150),pm);pl.rotation.y=Math.PI/2;pl.position.set(Math.min(x,L.D/2+ (over?0:-4)),L.gy-30,L.zs+75);root.add(pl);
