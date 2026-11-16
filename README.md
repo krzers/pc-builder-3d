@@ -6,6 +6,10 @@
 
 ## เปิดดู
 
+เว็บที่ deploy แล้ว: https://krzers.github.io/pc-builder-3d/ (อัปเดตเองทุกครั้งที่ push ขึ้น `main` ผ่าน GitHub Actions ใน `.github/workflows/pages.yml`)
+
+หรือเปิดในเครื่อง:
+
 ดับเบิลคลิก `index.html` เปิดในเบราว์เซอร์ได้เลย ต้องมีเน็ตเพื่อโหลด Three.js (r128 จาก cdnjs) และฟอนต์จาก Google Fonts
 
 ## โครงสร้าง
@@ -14,7 +18,8 @@
 |---|---|
 | `index.html` | ไฟล์ที่ใช้งานจริง สร้างจากสองไฟล์ด้านล่าง **อย่าแก้ไฟล์นี้ตรงๆ** |
 | `src/template.html` | โค้ดทั้งหมด (CSS, HTML, JavaScript) มีจุด `/*DATA*/` ไว้ใส่ข้อมูล |
-| `data/parts.json` | ข้อมูลชิ้นส่วน 80 รายการที่คัดมาจาก OpenDB |
+| `data/parts.json` | ข้อมูลชิ้นส่วน 85 รายการที่คัดมาจาก OpenDB |
+| `docs/formats.md` | format มาตรฐานในการประกอบคอม และกฎไหนเช็กแล้วหรือยัง |
 | `scripts/build.py` | รวม template กับข้อมูลเป็น `index.html` |
 | `scripts/build_data.py` | คัดชิ้นส่วนจาก OpenDB มาเป็น `data/parts.json` |
 
@@ -52,7 +57,9 @@ python3 scripts/build.py
 
 ## กฎที่เช็กอยู่ตอนนี้
 
-- ขนาดเมนบอร์ดกับเคส
+กฎทุกข้อเทียบ format หรือขนาด ไม่เทียบยี่ห้อ รายละเอียด format ทั้งหมดอยู่ใน [docs/formats.md](docs/formats.md)
+
+- ขนาดเมนบอร์ด (Mini-ITX, Micro-ATX, ATX, E-ATX) กับขนาดที่เคสรองรับ
 - ความยาวและความหนา (จำนวนช่อง) ของการ์ดจอกับเคส
 - ความสูงฮีทซิงก์แบบลมกับเคส
 - ช่องเสียบซีพียูกับเมนบอร์ด และกับชุดระบายความร้อน
