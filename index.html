@@ -4,6 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>จัดสเปคคอม 3D</title>
+<meta name="description" content="จัดสเปคคอมแบบ 3D เลือกชิ้นส่วนทีละขั้น ระบบเช็กให้ว่าใส่ด้วยกันได้ไหม พร้อมบอกเหตุผลเป็นภาษาที่เข้าใจง่าย">
+<meta property="og:title" content="จัดสเปคคอม 3D">
+<meta property="og:description" content="เลือกชิ้นส่วนทีละขั้น เห็นเครื่องประกอบขึ้นเป็น 3D และรู้ทันทีว่าชิ้นไหนใส่ด้วยกันไม่ได้">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#121310">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23121310'/%3E%3Crect x='10' y='8' width='12' height='16' rx='1.5' fill='none' stroke='%235b6cff' stroke-width='2.5'/%3E%3Crect x='10' y='19' width='12' height='5' fill='%235b6cff'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@500;600;700&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+Thai:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -206,6 +212,20 @@ button{font:inherit;color:inherit;cursor:pointer}
 body.dragging,body.dragging *{cursor:grabbing!important}
 
 .sum{display:flex;flex-direction:column;gap:10px}
+.acts{display:flex;flex-wrap:wrap;gap:8px}.acts .btn{flex:1 1 150px;text-align:center;text-decoration:none;font-size:14px;padding:11px 12px}
+.total{display:flex;justify-content:space-between;align-items:baseline;padding:10px 4px 2px;font-weight:600}
+.total b{font-family:var(--mono);font-size:22px}
+.pr{margin-top:8px;font-family:var(--mono);font-weight:600;font-size:15px}
+.coach{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:8;width:min(360px,calc(100% - 32px));background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 18px 16px;box-shadow:0 24px 60px rgba(0,0,0,.28);animation:rise .4s cubic-bezier(.2,.8,.2,1)}
+.coach b{font-family:var(--display);font-size:18px}
+.coach ol{margin:10px 0 14px;padding:0;list-style:none;display:flex;flex-direction:column;gap:9px;font-size:14px;counter-reset:c}
+.coach li{display:grid;grid-template-columns:24px 1fr;gap:10px;align-items:start;counter-increment:c}
+.coach li::before{content:counter(c);width:24px;height:24px;border-radius:50%;background:var(--acc);color:var(--acc-ink);display:grid;place-items:center;font-family:var(--mono);font-size:12px;font-weight:600}
+.coach .btn{width:100%}
+.loading{position:absolute;inset:0;display:grid;place-items:center;color:var(--ink-2);font-size:14px;pointer-events:none}
+.loading span{display:flex;align-items:center;gap:10px}
+.loading span::before{content:"";width:18px;height:18px;border-radius:50%;border:2.5px solid var(--line);border-top-color:var(--acc);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 .verdict{border-radius:8px;padding:12px 14px;background:var(--ok-soft);color:var(--ok);font-weight:600;display:flex;gap:10px;align-items:center}
 .row{display:grid;grid-template-columns:56px 1fr auto;gap:12px;align-items:center;padding:8px 2px;border-bottom:1px solid var(--line);font-size:14px}
 .row .th{width:56px;height:44px;border-radius:6px;background:linear-gradient(160deg,var(--pic-a),var(--pic-b));position:relative;overflow:hidden}
@@ -234,7 +254,7 @@ h2{font-family:var(--display);font-size:15px;margin:10px 2px 0;font-weight:600}
   .panel{border-left:0;border-top:1px solid var(--line)}
   .ph{padding:10px 14px}.prog{margin-bottom:8px}.ph h1{font-size:19px;margin:2px 0 2px}.ph p{font-size:12.5px}.ph .cnt{margin-top:6px}.fmts{margin-top:8px}.fm{min-width:70px;padding:5px 4px;grid-template-rows:24px auto auto}
   .viewbtn{top:8px;right:8px}
-  .hud{left:8px;right:8px}.gauge{min-width:0;padding:6px 10px;max-width:250px}.gauge .v{font-size:15px;margin-bottom:4px}.gauge .s{display:none}
+  .hud{left:8px;right:8px}.gauge{min-width:0;width:168px;padding:5px 10px 7px}.gauge .l{font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.gauge .v{font-size:14px;margin-bottom:3px}.gauge .v small{font-size:11px}.gauge .s{display:none}
   .toast{bottom:70px}.list{padding:10px}.grid{gap:8px}
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}.card.pre{opacity:1;transform:none}}
@@ -254,6 +274,8 @@ h2{font-family:var(--display);font-size:15px;margin:10px 2px 0;font-weight:600}
     <div id="fx"></div>
     <div class="stagemsg" id="stagemsg"></div>
     <button class="mini viewbtn" id="view" type="button">รีเซ็ตมุมมอง</button>
+    <div class="loading" id="loading"><span>กำลังเตรียมโมเดล 3D</span></div>
+    <div class="coach" id="coach" hidden><b>ใช้งานยังไง</b><ol><li>แตะการ์ดทางขวา หรือลากไปวางที่เครื่อง เพื่อใส่ชิ้นส่วน</li><li>ลากชิ้นของขั้นที่ทำอยู่ออกจากเครื่อง เพื่อถอด</li><li>ลากพื้นที่ว่างเพื่อหมุนดูรอบเครื่อง เลื่อนเพื่อซูม</li></ol><button class="btn" id="coachok" type="button">เริ่มจัดสเปค</button></div>
     <div class="empty3d" id="empty" hidden><div><b>เริ่มจากเลือกเคส</b>ลากการ์ดเคสมาวางตรงนี้ หรือแตะที่การ์ดก็ได้</div></div>
     <button class="fold-h" id="fold" type="button" aria-expanded="true" aria-controls="shelf"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m4 1.5 4.5 4.5L4 10.5"/></svg><span id="foldtx">ชิ้นส่วน</span></button>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -283,11 +305,20 @@ const META={
 };
 const SAMPLE={case:'Corsair 4000D Airflow',mb:'MSI MAG B650 Tomahawk WiFi',cpu:'AMD Ryzen 5 7600',ram:'Corsair Vengeance',gpu:'MSI RTX 5070 Shadow 3X',cool:'Thermalright Peerless Assassin 120 SE',ssd:'WD Black SN770',psu:'Corsair RM750e'};
 let build={},step=0,preview=null,isSample=false;
+/* Business hook: set url to an order / quote / chat link to show a primary button on the summary. Empty = hidden. */
+const CTA={label:'ขอใบเสนอราคา',url:''};
+/* Prices: add a numeric field "p" (baht) to an item in data/parts.json and it shows on cards and in the total. */
+const baht=n=>'฿'+Math.round(n).toLocaleString('th-TH');
+const buildHash=()=>'b-'+ORDER.map(k=>build[k]?build[k].id:'0').join('-');
+function readHash(){const m=/^#b-([0-9a-f-]+)$/.exec(location.hash||'');if(!m)return null;const ids=m[1].split('-');if(ids.length!==ORDER.length)return null;const b={};ORDER.forEach((k,i)=>{const it=DATA[k].find(x=>x.id===ids[i]);if(it)b[k]=it});return b.case?b:null}
+function shareUrl(){return location.href.split('#')[0]+'#'+buildHash()}
+function copyText(txt,okMsg){const fail=()=>toast('คัดลอกไม่สำเร็จ ลองคัดลอกจากแถบที่อยู่ของเบราว์เซอร์แทน');try{navigator.clipboard.writeText(txt).then(()=>toast(okMsg),fail)}catch(e){fail()}}
+const listText=()=>ORDER.map(k=>build[k]?`${META[k].t}: ${build[k].full||build[k].n}`:null).filter(Boolean).join('\n');
 /* one accent colour per part category: [colour, readable text colour on it] */
 const ACC={case:['#5b6cff','#fff'],mb:['#00a39b','#fff'],cpu:['#ff6a3d','#111'],ram:['#b05cff','#fff'],gpu:['#2fbf5f','#111'],cool:['#1aa7ff','#111'],ssd:['#e0478f','#fff'],psu:['#f5a300','#111'],sum:['#ffd60a','#111']};
 const curKey=()=>step<ORDER.length?ORDER[step]:'sum';
 /* ---------- sound: synthesised, no audio files ---------- */
-const SND={on:true,ctx:null};try{SND.on=localStorage.getItem('pcb3d-snd')!=='0'}catch(e){}
+const SND={on:true,ctx:null};try{SND.on=localStorage.getItem('pcb3d-snd')==='1'}catch(e){}
 function actx(){if(!SND.on)return null;try{if(!SND.ctx){const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;SND.ctx=new C()}if(SND.ctx.state==='suspended')SND.ctx.resume();return SND.ctx}catch(e){return null}}
 function tone(f,t,d,type,vol,f2){const c=actx();if(!c)return;const o=c.createOscillator(),g=c.createGain(),t0=c.currentTime+(t||0);o.type=type||'sine';o.frequency.setValueAtTime(f,t0);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t0+d);g.gain.setValueAtTime(.0001,t0);g.gain.exponentialRampToValueAtTime(vol||.08,t0+.01);g.gain.exponentialRampToValueAtTime(.0001,t0+d);o.connect(g);g.connect(c.destination);o.start(t0);o.stop(t0+d+.03)}
 function hiss(t,d,vol,f1,f2){const c=actx();if(!c)return;const n=Math.floor(c.sampleRate*d),buf=c.createBuffer(1,n,c.sampleRate),ch=buf.getChannelData(0);for(let i=0;i<n;i++)ch[i]=Math.random()*2-1;const src=c.createBufferSource(),bp=c.createBiquadFilter(),g=c.createGain(),t0=c.currentTime+(t||0);src.buffer=buf;bp.type='bandpass';bp.Q.value=1.2;bp.frequency.setValueAtTime(f1,t0);if(f2)bp.frequency.exponentialRampToValueAtTime(f2,t0+d);g.gain.setValueAtTime(vol,t0);g.gain.exponentialRampToValueAtTime(.0001,t0+d);src.connect(bp);bp.connect(g);g.connect(c.destination);src.start(t0)}
@@ -382,7 +413,8 @@ function describe(k,it){
 }
 /* ---------- UI ---------- */
 function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('on'),4200)}
-function save(){try{localStorage.setItem('pcb3d',JSON.stringify(Object.fromEntries(Object.entries(build).map(([k,v])=>[k,v.id]))))}catch(e){}}
+function save(){try{localStorage.setItem('pcb3d',JSON.stringify(Object.fromEntries(Object.entries(build).map(([k,v])=>[k,v.id]))))}catch(e){}
+ try{history.replaceState(null,'','#'+buildHash())}catch(e){}}
 function select(k,it,dropped){
  const r=check(k,it);
  if(r.block.length){preview={k,it};if(dropped)toast(r.block[0]);sfx.bad();fx('bad');render();return}
@@ -425,7 +457,7 @@ function renderPanel(fresh){
     if(r.removes.length&&!sel)extra+=`<div class="note">${SVG.warn}<span>ถ้าเลือกชิ้นนี้ ต้องเลือก${r.removes.map(x=>META[x].t).join(' และ')}ใหม่</span></div>`;
     for(const[,msg]of notes(k,it))extra+=`<div class="note">${SVG.warn}<span>${esc(msg)}</span></div>`;
    }
-   return `<div class="card ${sel?'sel':''} ${lock?'lock':''} ${pv?'pv':''}" role="button" tabindex="0" data-k="${k}" data-i="${i}" aria-pressed="${!!sel}"><div class="pic"><img data-thumb="${k}:${it.id}" alt="" draggable="false">${k==='case'?`<span class="fmt">${it.mb.map(f=>NAME[f]).join(' · ')}</span>`:k==='mb'||k==='psu'?`<span class="fmt">${NAME[it.ff]||it.ff}</span>`:''}${sel?'<span class="tag on">ใส่อยู่</span>':lock?`<span class="tag no">${SVG.lock}ใส่ไม่ได้</span>`:'<span class="grip">ลากไปวาง</span>'}</div><div class="tx"><div class="n">${esc(d.n)}</div><div class="sub">${esc(d.sub)}</div><dl>${d.sp.map(s=>`<dt>${esc(s[0])}</dt><dd>${esc(s[1])}</dd>`).join('')}</dl>${extra}</div></div>`;
+   return `<div class="card ${sel?'sel':''} ${lock?'lock':''} ${pv?'pv':''}" role="button" tabindex="0" data-k="${k}" data-i="${i}" aria-pressed="${!!sel}"><div class="pic"><img data-thumb="${k}:${it.id}" alt="" draggable="false">${k==='case'?`<span class="fmt">${it.mb.length>1?NAME[it.mb[0]]+' ถึง '+NAME[it.mb[it.mb.length-1]]:NAME[it.mb[0]]}</span>`:k==='mb'||k==='psu'?`<span class="fmt">${NAME[it.ff]||it.ff}</span>`:''}${sel?'<span class="tag on">ใส่อยู่</span>':lock?`<span class="tag no">${SVG.lock}ใส่ไม่ได้</span>`:'<span class="grip">ลากไปวาง</span>'}</div><div class="tx"><div class="n">${esc(d.n)}</div><div class="sub">${esc(d.sub)}</div><dl>${d.sp.map(s=>`<dt>${esc(s[0])}</dt><dd>${esc(s[1])}</dd>`).join('')}</dl>${it.p?`<div class="pr">${baht(it.p)}</div>`:''}${extra}</div></div>`;
   };
   let h='<div class="grid">';
   if(optional(k))h+=`<div class="skip">${SVG.ok}<span>${k==='gpu'?'ซีพียูที่เลือกมีกราฟิกในตัว ข้ามขั้นนี้ได้ถ้าไม่เล่นเกมหนัก':'ซีพียูที่เลือกมีพัดลมแถมในกล่อง ข้ามขั้นนี้ได้'}</span></div>`;
@@ -440,7 +472,7 @@ function renderPanel(fresh){
   L.querySelectorAll('.card').forEach(c=>{c.classList.add('pre');io.observe(c)});
  }
  const nx=$('next');$('back').style.visibility=step?'visible':'hidden';nx.classList.remove('go');nx.classList.toggle('cp',k==='sum');if(justSel){void nx.offsetWidth;nx.classList.add('go')}
- if(k==='sum'){nx.textContent='คัดลอกรายการสเปค';nx.disabled=false}
+ if(k==='sum'){nx.textContent='แชร์ลิงก์สเปคนี้';nx.disabled=false}
  else{const nk=step+1<ORDER.length?ORDER[step+1]:'sum';nx.disabled=!filled(k);nx.textContent=!build[k]&&optional(k)?'ข้ามขั้นนี้':build[k]?(nk==='sum'?'ดูสรุปเครื่อง':`ถัดไป: ${META[nk].t}`):`เลือก${META[k].t}ก่อน`}
 }
 function summaryHTML(){
@@ -454,7 +486,7 @@ function summaryHTML(){
  if(b.cool&&!b.cool.aio&&c)ck.push(`ฮีทซิงก์สูง ${mm(b.cool.h)} มม. เคสรับได้ ${mm(c.coolMax)} มม.`);
  if(b.psu)ck.push(`เครื่องใช้ไฟประมาณ ${p.load} วัตต์ พาวเวอร์ซัพพลายจ่ายได้ ${b.psu.w} วัตต์`);
  const warn=b.cool&&b.cool.aio?`<div class="note">${SVG.warn}<span>ยังไม่ได้เช็กตำแหน่งติดตั้งหม้อน้ำกับเคส ควรดูคู่มือเคสประกอบ</span></div>`:'';
- return `<div class="sum"><div class="verdict">${SVG.ok}<span>ทุกชิ้นใส่ด้วยกันได้ ผ่านการเช็ก ${ck.length} ข้อ</span></div>${warn}<div>${rows}</div><h2>สิ่งที่ระบบเช็กให้แล้ว</h2><ul class="checks">${ck.map(x=>`<li>${SVG.ok}<span>${esc(x)}</span></li>`).join('')}</ul><p class="fine">ค่ากินไฟเป็นค่าประมาณจากสเปคของซีพียูและการ์ดจอ บวกชิ้นส่วนอื่นอีก 75 วัตต์ ต้นแบบนี้ยังไม่มีราคาและสต็อกของร้านในไทย รูปบนการ์ดถ่ายจากโมเดล 3D ไม่ใช่รูปสินค้าจริง</p><p class="fine">ข้อมูลสเปค ${Object.values(DATA).reduce((a,v)=>a+v.length,0)} รายการ คัดมาจาก <a href="https://github.com/buildcores/buildcores-open-db">BuildCores OpenDB</a> สัญญาอนุญาต <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> ตั้งชื่อย่อและแปลคำอธิบายเป็นภาษาไทย ใช้เพื่อการสาธิต ไม่ใช่เชิงพาณิชย์</p></div>`;
+ return `<div class="sum"><div class="verdict">${SVG.ok}<span>ทุกชิ้นใส่ด้วยกันได้ ผ่านการเช็ก ${ck.length} ข้อ</span></div>${warn}<div class="acts">${CTA.url?`<a class="btn" href="${esc(CTA.url)}" target="_blank" rel="noopener">${esc(CTA.label)}</a>`:''}<button type="button" class="btn ${CTA.url?'sec2':''}" data-act="link">แชร์ลิงก์สเปคนี้</button><button type="button" class="btn sec2" data-act="list">คัดลอกรายการ</button></div><div>${rows}</div>${(()=>{const ps=ORDER.filter(k=>b[k]&&b[k].p);if(!ps.length)return'';const t=ps.reduce((a,k)=>a+b[k].p,0),miss=ORDER.filter(k=>b[k]&&!b[k].p).length;return `<div class="total"><span>รวม${miss?` (ยังไม่รวม ${miss} ชิ้นที่ไม่มีราคา)`:''}</span><b>${baht(t)}</b></div>`})()}<h2>สิ่งที่ระบบเช็กให้แล้ว</h2><ul class="checks">${ck.map(x=>`<li>${SVG.ok}<span>${esc(x)}</span></li>`).join('')}</ul><p class="fine">ค่ากินไฟเป็นค่าประมาณจากสเปคของซีพียูและการ์ดจอ บวกชิ้นส่วนอื่นอีก 75 วัตต์ ต้นแบบนี้ยังไม่มีราคาและสต็อกของร้านในไทย รูปบนการ์ดถ่ายจากโมเดล 3D ไม่ใช่รูปสินค้าจริง</p><p class="fine">ข้อมูลสเปค ${Object.values(DATA).reduce((a,v)=>a+v.length,0)} รายการ คัดมาจาก <a href="https://github.com/buildcores/buildcores-open-db">BuildCores OpenDB</a> สัญญาอนุญาต <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> ตั้งชื่อย่อและแปลคำอธิบายเป็นภาษาไทย ใช้เพื่อการสาธิต ไม่ใช่เชิงพาณิชย์</p></div>`;
 }
 function gauge(label,val,max,unit,state,sub){const pct=Math.min(100,val/max*100);return `<div class="gauge ${state||''}"><div class="l">${label}</div><div class="v">${mm(val)} <small>/ ${mm(max)} ${unit}</small></div><div class="bar"><span style="width:${pct}%"></span></div>${sub?`<div class="s">${sub}</div>`:''}</div>`}
 function renderHud(){
@@ -476,14 +508,12 @@ let suppressClick=false;
 $('rail').addEventListener('click',e=>{const b=e.target.closest('.slot');if(!b||b.disabled)return;const i=+b.dataset.i;if(i===step)setFold(!APP.classList.contains('fold'));else{setFold(false);go(i)}});
 const LIST=$('list');
 function cardItem(c){return{k:c.dataset.k,it:DATA[c.dataset.k][+c.dataset.i]}}
-LIST.addEventListener('click',e=>{if(suppressClick){suppressClick=false;return}const g=e.target.closest('[data-go]');if(g){go(+g.dataset.go);return}const c=e.target.closest('.card');if(c){const{k,it}=cardItem(c);select(k,it)}});
+LIST.addEventListener('click',e=>{if(suppressClick){suppressClick=false;return}const g=e.target.closest('[data-go]');if(g){go(+g.dataset.go);return}const ac=e.target.closest('[data-act]');if(ac){sfx.tick();if(ac.dataset.act==='link')copyText(shareUrl(),'คัดลอกลิงก์แล้ว ส่งให้ใครก็เปิดเห็นสเปคนี้');else copyText(listText(),'คัดลอกรายการสเปคแล้ว');return}const c=e.target.closest('.card');if(c){const{k,it}=cardItem(c);select(k,it)}});
 LIST.addEventListener('keydown',e=>{if(e.key!=='Enter'&&e.key!==' ')return;const c=e.target.closest('.card');if(c){e.preventDefault();const{k,it}=cardItem(c);select(k,it)}});
 $('back').addEventListener('click',()=>go(step-1));
 $('next').addEventListener('click',()=>{
  if(step<ORDER.length){go(step+1);return}
- const txt=ORDER.map(k=>build[k]?`${META[k].t}: ${build[k].full||build[k].n}`:null).filter(Boolean).join('\n');
- const done=()=>toast('คัดลอกรายการสเปคแล้ว'),fail=()=>toast('คัดลอกไม่สำเร็จ ลองเลือกข้อความในรายการแล้วคัดลอกเอง');
- try{navigator.clipboard.writeText(txt).then(done,fail)}catch(e){fail()}
+ sfx.tick();copyText(shareUrl(),'คัดลอกลิงก์แล้ว ส่งให้ใครก็เปิดเห็นสเปคนี้');
 });
 function sndLabel(){$('snd').textContent=SND.on?'เสียง เปิด':'เสียง ปิด';$('snd').setAttribute('aria-pressed',String(SND.on))}
 sndLabel();$('snd').addEventListener('click',()=>{SND.on=!SND.on;try{localStorage.setItem('pcb3d-snd',SND.on?'1':'0')}catch(e){}sndLabel();if(SND.on)sfx.tick()});
@@ -514,18 +544,22 @@ LIST.addEventListener('touchmove',e=>{if(drag&&drag.on)e.preventDefault()},{pass
 LIST.addEventListener('contextmenu',e=>{if(drag)e.preventDefault()});
 
 (function init(){
- let saved=null;try{saved=JSON.parse(localStorage.getItem('pcb3d')||'null')}catch(e){}
- if(saved&&Object.keys(saved).length){for(const k of ORDER){const it=DATA[k].find(x=>x.id===saved[k]);if(it)build[k]=it}}
+ const shared=readHash();let saved=null;try{saved=JSON.parse(localStorage.getItem('pcb3d')||'null')}catch(e){}
+ if(shared){build=shared;if(pairs(build).length)build={};else step=maxStep()}
+ else if(saved&&Object.keys(saved).length){for(const k of ORDER){const it=DATA[k].find(x=>x.id===saved[k]);if(it)build[k]=it}}
  else{for(const k of ORDER)build[k]=DATA[k].find(x=>x.n===SAMPLE[k]);isSample=true}
  if(pairs(build).length){build={};isSample=false}
+ let seen=false;try{seen=!!localStorage.getItem('pcb3d-seen')}catch(e){}
+ if(!seen&&!shared)$('coach').hidden=false;
+ $('coachok').addEventListener('click',()=>{$('coach').hidden=true;try{localStorage.setItem('pcb3d-seen','1')}catch(e){}});
 })();
 
 /* ---------- 3D ---------- */
 let userMoved=false;
 (function(){
- if(!window.THREE){$('empty').hidden=false;$('empty').innerHTML='<div><b>โหลดโมเดล 3D ไม่สำเร็จ</b>ยังเลือกชิ้นส่วนและดูผลการเช็กทางขวาได้ตามปกติ</div>';return}
+ if(!window.THREE){$('loading').hidden=true;$('empty').hidden=false;$('empty').innerHTML='<div><b>โหลดโมเดล 3D ไม่สำเร็จ</b>ยังเลือกชิ้นส่วนและดูผลการเช็กทางขวาได้ตามปกติ</div>';return}
  const T=THREE,cv=$('cv'),bench=$('bench');let renderer;
- try{renderer=new T.WebGLRenderer({canvas:cv,antialias:true,alpha:true})}catch(e){$('empty').hidden=false;$('empty').innerHTML='<div><b>อุปกรณ์นี้แสดงโมเดล 3D ไม่ได้</b>ยังเลือกชิ้นส่วนและดูผลการเช็กได้ตามปกติ</div>';return}
+ try{renderer=new T.WebGLRenderer({canvas:cv,antialias:true,alpha:true})}catch(e){$('loading').hidden=true;$('empty').hidden=false;$('empty').innerHTML='<div><b>อุปกรณ์นี้แสดงโมเดล 3D ไม่ได้</b>ยังเลือกชิ้นส่วนและดูผลการเช็กได้ตามปกติ</div>';return}
  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
  renderer.outputEncoding=T.sRGBEncoding;renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.2;
  renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;
@@ -661,6 +695,7 @@ let userMoved=false;
   if(L.psuFront){const x=L.D/2-8-ph/2;box(g,ph,pl,pz,x,8+pl/2,zc,m,0x6a7180);parts.psuC=[x,8+pl/2,zc]}
   else{const x=L.rear+8+pl/2;box(g,pl,ph,pz,x,6+ph/2,zc,m,0x6a7180);fan(g,Math.min(60,pl*.42),'z',x,6+ph/2,zc+pz/2+1,0x6a7180);box(g,pl*.5,10,1,x,6+ph-10,zc+pz/2+1,M(0xdfe6f5));parts.psuC=[x,6+ph/2,zc]}}
  const BUILDERS={mb:buildMb,cpu:buildCpu,ram:buildRam,gpu:buildGpu,cool:buildCool,ssd:buildSsd,psu:buildPsu};
+ let shown=false;const caseRad=Math.max(...DATA.case.map(c=>Math.hypot(c.D,c.W,c.H)))/2;
  let lastIds={},L0=null,shakers=[],swayK=0,clock=0;
  function dispose(o){o.traverse(n=>{if(n.geometry)n.geometry.dispose();if(n.material)n.material.dispose()})}
  function sync(){
@@ -685,7 +720,7 @@ let userMoved=false;
  }
  /* camera */
  let started=false,last=0;const PH_MIN=.04,PH_MAX=1.2;const view={th:.55,ph:.26,r:1400,tx:0,ty:230,tz:0},goal={...view};
- function focus(){const L=L0;if(!L)return;const k=document.querySelector('.app').classList.contains('fold')?'sum':step<ORDER.length?ORDER[step]:'sum',big=Math.max(L.D,L.H,L.W*1.4);let t=[0,L.H/2,0],r=big*2.9,th=.55,ph=.22;
+ function focus(){const L=L0;if(!L)return;const k=document.querySelector('.app').classList.contains('fold')?'sum':step<ORDER.length?ORDER[step]:'sum',big=Math.max(L.D,L.H,L.W*1.4);let t=[0,L.H/2,0],r=big*2.45,th=.55,ph=.22;
   const near=(x,y,z,rr,a,p)=>{t=[x,y,z];r=rr;th=a;ph=p};
   if(k==='mb')near(L.bx+L.bw/2,L.by-L.bh/2,L.zs,big*1.75,.3,.14);
   if(k==='cpu')near(L.sx,L.sy,L.zs,big*1.25,.28,.16);
@@ -723,9 +758,9 @@ let userMoved=false;
  function wantThumb(k,it){const key=k+':'+it.id;if(thumbs.has(key)||thumbQ.some(q=>q.key===key))return;thumbQ.push({key,k,it})}
  function makeThumb(q){const pr=renderer.getPixelRatio(),tw=Math.min(480,cv.width),th=Math.min(360,cv.height,Math.round(tw*.75));if(tw<120||th<90)return false;
   const b=q.k==='case'?{case:q.it}:{case:DUMMY,[q.k]:q.it},L=layout(b),tg=new T.Group(),sp=spinners.length;
-  if(q.k==='case')buildCase(tg,L);else BUILDERS[q.k](tg,L,b);spinners.length=sp;
+  if(q.k==='case'){buildCase(tg,L);buildMb(tg,L,b,true)}else BUILDERS[q.k](tg,L,b);spinners.length=sp;
   tg.traverse(n=>{if(n.isMesh){const tr=n.material.transparent;n.castShadow=!tr;n.receiveShadow=!tr}});
-  const bb=new T.Box3().setFromObject(tg),c=bb.getCenter(new T.Vector3()),rad=bb.getSize(new T.Vector3()).length()/2,d=TDIR[q.k],dir=new T.Vector3(d[0],d[1],d[2]).normalize();
+  const bb=new T.Box3().setFromObject(tg),c=bb.getCenter(new T.Vector3()),rad=q.k==='case'?caseRad*.86:bb.getSize(new T.Vector3()).length()/2,d=TDIR[q.k],dir=new T.Vector3(d[0],d[1],d[2]).normalize();
   tcam.aspect=tw/th;tcam.updateProjectionMatrix();tcam.position.copy(c).addScaledVector(dir,rad/Math.sin(tcam.fov*Math.PI/360)*1.04);tcam.lookAt(c);
   root.visible=false;floor.visible=false;deco.visible=false;fxRoot.visible=false;scene.add(tg);
   renderer.setViewport(0,0,tw/pr,th/pr);renderer.setScissor(0,0,tw/pr,th/pr);renderer.setScissorTest(true);renderer.clear();renderer.render(scene,tcam);
@@ -744,7 +779,7 @@ let userMoved=false;
   for(let i=flashes.length-1;i>=0;i--){const f=flashes[i];f.t+=dt;const k=Math.max(0,1-f.t/.55);for(const q of f.ms)q.m.emissiveIntensity=q.i+k*.9;if(k<=0){for(const q of f.ms){q.m.emissive.copy(q.c);q.m.emissiveIntensity=q.i}flashes.splice(i,1)}}
   accCol.lerp(accGoal,Math.min(1,dt*4));glowMat.color.copy(accCol);
   if(!reduce)for(const s of spinners)s.rotation.z+=dt*3;
-  place();renderer.render(scene,cam)}
+  place();renderer.render(scene,cam);if(!shown){shown=true;$('loading').hidden=true}}
  window.scene3d={sync,wantThumb,burst};size();tick();
 })();
 
