@@ -684,7 +684,7 @@ let userMoved=false;
   focus();
  }
  /* camera */
- let started=false,last=0;const PH_MIN=.14,PH_MAX=1.2;const view={th:.55,ph:.26,r:1400,tx:0,ty:230,tz:0},goal={...view};
+ let started=false,last=0;const PH_MIN=.04,PH_MAX=1.2;const view={th:.55,ph:.26,r:1400,tx:0,ty:230,tz:0},goal={...view};
  function focus(){const L=L0;if(!L)return;const k=document.querySelector('.app').classList.contains('fold')?'sum':step<ORDER.length?ORDER[step]:'sum',big=Math.max(L.D,L.H,L.W*1.4);let t=[0,L.H/2,0],r=big*2.9,th=.55,ph=.22;
   const near=(x,y,z,rr,a,p)=>{t=[x,y,z];r=rr;th=a;ph=p};
   if(k==='mb')near(L.bx+L.bw/2,L.by-L.bh/2,L.zs,big*1.75,.3,.14);
