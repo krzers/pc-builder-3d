@@ -4,7 +4,7 @@
 
 Source release: commit 3b64e392 (2026-11-15).
 
-Changes: 85 records selected out of the full database; fields reduced and renamed to the ones this app uses; product names shortened; form-factor labels abbreviated (Micro ATX → mATX, Mini-ITX → ITX).
+Changes: 87 records selected out of the full database; fields reduced and renamed to the ones this app uses; product names shortened; form-factor labels abbreviated (Micro ATX → mATX, Mini-ITX → ITX).
 
 This data may be shared and adapted for noncommercial purposes with attribution, and adaptations of the data that are shared publicly must use the same license. Commercial use needs a separate written grant from BuildCores.
 

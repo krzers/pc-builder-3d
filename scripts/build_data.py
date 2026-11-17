@@ -15,6 +15,19 @@ def pick(rows,key,exact=False):
     return sorted(c,key=lambda x:len(nm(x)))[0]
 FF={'Micro ATX':'mATX','Mini-ITX':'ITX','ATX':'ATX','EATX':'EATX','Mini DTX':'DTX'}
 out={}
+def m2lens(slots):
+    STD=[30,42,60,80,110];res=set()
+    def ln(tok):
+        tok=tok.strip()
+        return int(tok[2:]) if tok.isdigit() and len(tok)>=4 else None
+    for sl in slots or []:
+        t=str(sl.get('size') or '')
+        if '-' in t and '/' not in t:
+            ab=[ln(x) for x in t.split('-')[:2]]
+            if all(ab): res|={x for x in STD if min(ab)<=x<=max(ab)}
+        else:
+            res|={v for v in (ln(x) for x in t.split('/')) if v}
+    return sorted(res)
 C=load('PCCase'); L=[]
 for key,short in [('Fractal Design North ATX Mid Tower Charcoal','Fractal Design North'),('NZXT H5 Flow (2022) ATX Mid Tower White','NZXT H5 Flow'),('O11 Dynamic EVO ATX Mid Tower Gray','Lian Li O11 Dynamic EVO'),('Corsair 4000D AIRFLOW Tempered','Corsair 4000D Airflow'),('AIR 903 BASE ATX Mid Tower White','Montech AIR 903 Base'),('H6 Flow ATX Mid Tower Black','NZXT H6 Flow'),('A3-mATX Micro ATX Mini Tower Black','Lian Li A3-mATX'),('Q300L V2 MicroATX Mini Tower Black','Cooler Master Q300L V2'),('MasterBox NR200P Mini-ITX Desktop Black','Cooler Master NR200P'),('Fractal Design Torrent ATX Mid Tower Black TG Dark Tint','Fractal Design Torrent'),('Corsair 7000D AIRFLOW ATX Full Tower Black','Corsair 7000D Airflow'),('Lian Li O11 Dynamic EVO XL EATX Full Tower White','Lian Li O11 Dynamic EVO XL')]:
     x=pick(C,key); d=x['dimensions_mm']
@@ -23,7 +36,7 @@ out['case']=L
 M=load('Motherboard'); L=[]
 for key,short in [('ASRock B650M Pro RS WiFi','ASRock B650M Pro RS WiFi'),('MSI MAG B650 TOMAHAWK WIFI','MSI MAG B650 Tomahawk WiFi'),('Gigabyte X870 EAGLE WIFI7','Gigabyte X870 Eagle WiFi7'),('ASRock B850 M-X R2.0','ASRock B850M-X'),('MSI MPG B650I EDGE WIFI','MSI MPG B650I Edge WiFi'),('ASRock B760M Pro-A D4 WiFi','ASRock B760M Pro-A D4 WiFi'),('Gigabyte B760 GAMING X WIFI6E GEN5','Gigabyte B760 Gaming X WiFi6E'),('Gigabyte B760I AORUS PRO DDR5','Gigabyte B760I Aorus Pro'),('MSI MAG B860 TOMAHAWK WIFI','MSI MAG B860 Tomahawk WiFi'),('B860M-VC WIFI','MSI Pro B860M-VC WiFi'),('ASRock B860I WiFi','ASRock B860I WiFi'),('Gigabyte B550M K','Gigabyte B550M K'),('AORUS B550I PRO AX','Gigabyte B550I Aorus Pro AX'),('ASRock X870E Taichi AM5 DDR5 EATX','ASRock X870E Taichi'),('MSI MEG X870E GODLIKE AM5 DDR5 EATX','MSI MEG X870E Godlike')]:
     x=pick(M,key)
-    L.append(dict(id=x['opendb_id'][:8],n=short,sock=x['socket'],ff=FF[x['form_factor']],chip=x.get('chipset'),ram=x['memory']['ram_type'],rs=x['memory']['slots'],rmax=x['memory']['max'],m2=len(x.get('m2_slots') or []),wifi=bool(x.get('wireless_networking') and 'Wi-Fi' in x['wireless_networking'])))
+    L.append(dict(id=x['opendb_id'][:8],n=short,sock=x['socket'],ff=FF[x['form_factor']],chip=x.get('chipset'),ram=x['memory']['ram_type'],rs=x['memory']['slots'],rmax=x['memory']['max'],m2=len(x.get('m2_slots') or []),m2l=m2lens(x.get('m2_slots')),wifi=bool(x.get('wireless_networking') and 'Wi-Fi' in x['wireless_networking'])))
 out['mb']=L
 P=load('CPU'); L=[]
 for key in ['AMD Ryzen 5 5600','AMD Ryzen 5 5600G','AMD Ryzen 5 7600','AMD Ryzen 5 9600X','AMD Ryzen 7 7800X3D','AMD Ryzen 7 9800X3D','AMD Ryzen 9 9950X3D','Intel Core i5 12400F','Intel Core i5 14400F','Intel Core i5 14600K','Intel Core i7 14700K','Intel Core Ultra 5 245K','Intel Core Ultra 7 265K']:
@@ -52,8 +65,8 @@ for key,short in [('Thermalright Peerless Assassin 120 SE Air','Thermalright Pee
     L.append(dict(id=x['opendb_id'][:8],n=short,h=x.get('height'),aio=bool(x.get('water_cooled')),rad=x.get('radiator_size'),socks=x['cpu_sockets'],col=(x.get('color') or ['GREY'])[0]))
 out['cool']=L
 S=load('Storage'); L=[]
-for key,short in [('Kingston NV2 1TB SSD M.2-2280','Kingston NV2'),('Western Digital Black SN770 1TB','WD Black SN770'),('Crucial T500 1 TB SSD M.2-2280','Crucial T500'),('Samsung 990 Pro 1TB SSD M.2','Samsung 990 Pro'),('Western Digital Black SN850X 2TB SSD M.2','WD Black SN850X')]:
-    x=pick(S,key); L.append(dict(id=x['opendb_id'][:8],n=short,gb=x['capacity'],iface=x['interface'].replace('M.2 ','')))
+for key,short in [('Kingston NV2 1TB SSD M.2-2280','Kingston NV2'),('Western Digital Black SN770 1TB','WD Black SN770'),('Crucial T500 1 TB SSD M.2-2280','Crucial T500'),('Samsung 990 Pro 1TB SSD M.2','Samsung 990 Pro'),('Western Digital Black SN850X 2TB SSD M.2','WD Black SN850X'),('Western Digital WD_BLACK SN770M 1TB M.2-2230','WD Black SN770M'),('Corsair MP600 MINI 1TB SSD M.2-2230','Corsair MP600 Mini')]:
+    x=pick(S,key); L.append(dict(id=x['opendb_id'][:8],n=short,len=int(x['form_factor'].split('-22')[1]),gb=x['capacity'],iface=x['interface'].replace('M.2 ','')))
 out['ssd']=L
 U=load('PSU'); L=[]
 for key,short in [('MSI MAG A550BN Black 550W','MSI MAG A550BN'),('MSI MAG A650BNL Black','MSI MAG A650BNL'),('Corsair RM750e (2025) Black','Corsair RM750e'),('Corsair RM850x (2024) Black','Corsair RM850x'),('Corsair RM1000x (2024) Black','Corsair RM1000x'),('Corsair SF750 (2024) SFX','Corsair SF750'),('Cooler Master V850 SFX Gold 850W','Cooler Master V850 SFX'),('Corsair SF1000 (2024) Black SFX','Corsair SF1000')]:

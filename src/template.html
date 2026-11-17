@@ -114,7 +114,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 
 /* shelf */
-.panel{display:grid;grid-template-rows:auto 1fr auto;min-height:0;min-width:0;overflow:hidden;background:var(--surface);border-left:1px solid var(--line)}
+.panel{display:grid;grid-template-rows:1fr auto;min-height:0;min-width:0;overflow:hidden;background:var(--surface);border-left:1px solid var(--line)}
 .panel>*{min-width:480px}
 .ph{padding:18px 20px 14px;border-bottom:1px solid var(--line)}
 .prog{display:flex;gap:4px;margin-bottom:14px}
@@ -127,7 +127,18 @@ button{font:inherit;color:inherit;cursor:pointer}
 .ph .cnt{display:flex;gap:14px;margin-top:12px;font-size:12.5px;color:var(--ink-2)}
 .ph .cnt b{font-family:var(--mono);font-weight:600;color:var(--ink);margin-right:4px}
 .ph .cnt .x b{color:var(--bad)}
-.list{overflow-y:auto;padding:14px;min-height:0}
+.scroll{overflow-y:auto;min-height:0;overscroll-behavior:contain}
+.tools{display:flex;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--surface);position:sticky;top:0;z-index:3}
+.srch{flex:1 1 0;min-width:0;display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:0 10px;color:var(--ink-2)}
+.srch:focus-within{border-color:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 22%,transparent)}
+.srch input{flex:1;min-width:0;border:0;background:none;font:inherit;color:var(--ink);padding:9px 0;outline:none}
+.srch input::placeholder{color:var(--ink-3)}
+.tools select{font:inherit;font-size:13.5px;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:0 8px;flex:0 0 172px;width:172px;min-width:0}
+.none{grid-column:1/-1;text-align:center;color:var(--ink-2);padding:36px 12px;display:flex;flex-direction:column;gap:12px;align-items:center}
+.none button{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:8px 16px}
+.toast.act{pointer-events:auto}
+.toast button{margin-left:10px;border:0;border-radius:6px;padding:4px 12px;font-weight:600;background:var(--acc);color:var(--acc-ink)}
+.list{padding:14px}
 .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .sec{grid-column:1/-1;font-size:12.5px;font-weight:600;color:var(--ink-2);margin:8px 2px 0;display:flex;align-items:center;gap:8px}
 .sec::after{content:"";flex:1;height:1px;background:var(--line)}
@@ -243,6 +254,7 @@ h2{font-family:var(--display);font-size:15px;margin:10px 2px 0;font-weight:600}
   .app{grid-template-columns:1fr;grid-template-rows:auto minmax(210px,36%) 1fr}
   .app.fold{grid-template-columns:1fr;grid-template-rows:auto 1fr 0px}
   .panel>*{min-width:0}
+  .tools{padding:8px 10px}.tools select{flex-basis:138px;width:138px}
   .fold-h{right:50%;top:auto;bottom:0;transform:translateX(50%);border:1px solid var(--line);border-bottom:0;border-radius:10px 10px 0 0;padding:5px 16px}
   .fold-h svg{transform:rotate(90deg)}.app.fold .fold-h svg{transform:rotate(-90deg)}
   .fold-h span,.app.fold .fold-h span{display:block;writing-mode:horizontal-tb}
@@ -282,8 +294,11 @@ h2{font-family:var(--display);font-size:15px;margin:10px 2px 0;font-weight:600}
     <div class="hud" id="hud"></div>
   </section>
   <section class="panel" id="shelf">
+    <div class="scroll" id="scroll">
     <div class="ph" id="ph"></div>
+    <div class="tools" id="tools"><label class="srch"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="m10.5 10.5 3.5 3.5"/></svg><input id="q" type="search" placeholder="ค้นหารุ่นหรือยี่ห้อ" autocomplete="off" aria-label="ค้นหาชิ้นส่วน"></label><select id="sort" aria-label="เรียงลำดับ"></select></div>
     <div class="list" id="list"></div>
+    </div>
     <div class="pf"><button class="btn sec2" id="back" type="button">ย้อนกลับ</button><button class="btn" id="next" type="button"></button></div>
   </section>
 </div>
@@ -367,6 +382,7 @@ function pairs(b){
  const sock=mb?mb.sock:cpu?cpu.sock:null;
  if(cool&&sock&&!cool.socks.includes(sock))add(mb?'mb':'cpu','cool',`ชุดระบายความร้อนรุ่นนี้ยึดกับช่องเสียบซีพียูแบบ ${sock} ไม่ได้`);
  if(mb&&ssd&&mb.m2<1)add('mb','ssd','เมนบอร์ดนี้ไม่มีช่อง M.2 สำหรับ SSD แบบนี้');
+ else if(mb&&ssd&&ssd.len&&mb.m2l&&mb.m2l.length&&!mb.m2l.includes(ssd.len))add('mb','ssd',`SSD ตัวนี้ยาว ${ssd.len} มม. แต่ช่อง M.2 ของเมนบอร์ดนี้รองรับความยาว ${mb.m2l.join(' / ')} มม.`);
  if(psu&&(cpu||gpu)){const p=power(b);if(psu.w<p.need)add(gpu?'gpu':'cpu','psu',`เครื่องนี้ใช้ไฟประมาณ ${p.load} วัตต์ ควรใช้พาวเวอร์ซัพพลาย ${p.need} วัตต์ขึ้นไป แต่รุ่นนี้จ่ายได้ ${psu.w} วัตต์`)}
  return o;
 }
@@ -395,6 +411,12 @@ const NAME={ITX:'Mini-ITX',mATX:'Micro-ATX',ATX:'ATX',EATX:'E-ATX',SFX:'SFX','SF
 const FORMATS={case:[['ITX',170,170],['mATX',244,244],['ATX',244,305],['EATX',277,305]],mb:[['ITX',170,170],['mATX',244,244],['ATX',244,305],['EATX',277,305]],psu:[['SFX',125,63.5],['ATX',150,86]]};
 const FLABEL={case:'ใส่เมนบอร์ดขนาด',mb:'ขนาดเมนบอร์ด',psu:'ขนาดพาวเวอร์ซัพพลาย'};
 const fmt={case:null,mb:null,psu:null};
+const qs={},sorts={};
+const SORTS={case:[['gpuMax','การ์ดจอยาวได้มากสุด'],['vol','เล็กสุดก่อน']],mb:[['m2','ช่อง SSD มากสุด']],cpu:[['c','คอร์มากสุด'],['tdp','กินไฟน้อยสุด']],ram:[['cap','ความจุมากสุด'],['sp','เร็วสุด']],gpu:[['len','สั้นสุดก่อน'],['vram','หน่วยความจำภาพมากสุด'],['tdp','กินไฟน้อยสุด']],cool:[['h','เตี้ยสุดก่อน']],ssd:[['gb','ความจุมากสุด']],psu:[['w','วัตต์มากสุด'],['wlow','วัตต์น้อยสุด']]};
+const CMP={gpuMax:(a,b)=>b.gpuMax-a.gpuMax,vol:(a,b)=>a.D*a.W*a.H-b.D*b.W*b.H,m2:(a,b)=>b.m2-a.m2,c:(a,b)=>b.c-a.c,tdp:(a,b)=>a.tdp-b.tdp,cap:(a,b)=>b.q*b.gb-a.q*a.gb,sp:(a,b)=>b.sp-a.sp,len:(a,b)=>a.len-b.len,vram:(a,b)=>b.vram-a.vram,h:(a,b)=>(a.aio?999:a.h)-(b.aio?999:b.h),gb:(a,b)=>b.gb-a.gb,w:(a,b)=>b.w-a.w,wlow:(a,b)=>a.w-b.w};
+const hay=(k,it)=>{const d=describe(k,it);return [d.n,d.sub,it.n,it.full,it.chip,it.sock,it.ff&&NAME[it.ff],it.type].filter(Boolean).join(' ').toLowerCase()};
+const passQ=(k,it)=>!qs[k]||qs[k].toLowerCase().split(/\s+/).every(w=>hay(k,it).includes(w));
+const passAll=(k,it)=>passFmt(k,it)&&passQ(k,it);
 const passFmt=(k,it)=>!fmt[k]||(k==='case'?it.mb.includes(fmt[k]):it.ff===fmt[k]);
 function fmtBar(k){if(!FORMATS[k])return'';const c=build.case;
  return `<div class="fmts" role="group" aria-label="${FLABEL[k]}"><span class="fl">${FLABEL[k]}</span>`+FORMATS[k].map(([f,w,h])=>{const n=DATA[k].filter(it=>k==='case'?it.mb.includes(f):it.ff===f).length,na=k==='mb'&&c&&!c.mb.includes(f)||k==='psu'&&c&&c.psu.length&&!c.psu.includes(f),sc=k==='psu'?7:13;
@@ -407,24 +429,27 @@ function describe(k,it){
  case'ram':return{n:`${it.q*it.gb}GB (${it.q} แถว × ${it.gb}GB)`,sub:it.n,sp:[['ชนิด',it.type],['ความเร็ว',`${it.sp} MHz`]]};
  case'gpu':return{n:it.n,sub:`${it.chip} · หน่วยความจำภาพ ${it.vram}GB`,sp:[['ยาว',`${mm(it.len)} มม.`],['หนา',`${it.sw} ช่อง`],['กินไฟ',`~${it.tdp} W`]]};
  case'cool':return{n:it.n,sub:it.aio?'แบบหม้อน้ำ':it.h<80?'แบบพัดลม ทรงเตี้ย':'แบบพัดลม ทรงทาวเวอร์',sp:it.aio?[['หม้อน้ำ',`${it.rad} มม.`]]:[['สูง',`${mm(it.h)} มม.`]]};
- case'ssd':return{n:it.n,sub:`ความจุ ${it.gb>=1000?it.gb/1000+'TB':it.gb+'GB'}`,sp:[['แบบ','M.2 NVMe'],['ความเร็ว',it.iface]]};
+ case'ssd':return{n:it.n,sub:`ความจุ ${it.gb>=1000?it.gb/1000+'TB':it.gb+'GB'}`,sp:[['ขนาด',`M.2 22${it.len}`],['ยาว',`${it.len} มม.`],['ความเร็ว',it.iface]]};
  case'psu':return{n:it.n,sub:`จ่ายไฟได้ ${it.w} วัตต์`,sp:[['ขนาด',it.ff],...(it.eff?[['มาตรฐาน',it.eff]]:[]),['สาย',it.mod==='Full'?'ถอดได้':'ติดตัวเครื่อง']]};
  }
 }
 /* ---------- UI ---------- */
-function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('on'),4200)}
+function toast(msg,canUndo){const t=$('toast');t.innerHTML=esc(msg)+(canUndo?'<button type="button" id="undo">เลิกทำ</button>':'');t.classList.toggle('act',!!canUndo);t.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('on','act'),canUndo?8000:4200)}
+let undoSnap=null;
+const snap=()=>{undoSnap={build:{...build},step,isSample}};
+function undo(){if(!undoSnap)return;build=undoSnap.build;step=undoSnap.step;isSample=undoSnap.isSample;undoSnap=null;preview=null;$('toast').classList.remove('on','act');save();sfx.step();render(true)}
 function save(){try{localStorage.setItem('pcb3d',JSON.stringify(Object.fromEntries(Object.entries(build).map(([k,v])=>[k,v.id]))))}catch(e){}
  try{history.replaceState(null,'','#'+buildHash())}catch(e){}}
 function select(k,it,dropped){
  const r=check(k,it);
  if(r.block.length){preview={k,it};if(dropped)toast(r.block[0]);sfx.bad();fx('bad');render();return}
- preview=null;build[k]=it;isSample=false;
+ snap();preview=null;build[k]=it;isSample=false;
  const gone=[];let guard=0;
  for(;;){const ps=pairs(build);if(!ps.length||guard++>12)break;const p=ps[0];const later=idx(p.x)>idx(p.y)?p.x:p.y;gone.push(META[later].t);delete build[later]}
- if(gone.length)toast(`นำ${[...new Set(gone)].join(' และ')}ออกแล้ว เพราะใส่กับ${META[k].t}ชิ้นใหม่ไม่ได้ เลือกใหม่ได้ในขั้นถัดไป`);
+ if(gone.length)toast(`นำ${[...new Set(gone)].join(' และ')}ออกแล้ว เพราะใส่กับ${META[k].t}ชิ้นใหม่ไม่ได้ เลือกใหม่ได้ในขั้นถัดไป`,true);
  save();sfx.place(build.case&&k!=='case'&&!reduceUI?.3:0);if(k==='case')fx('ok');justSel=true;render();justSel=false;
 }
-function removePart(k){if(!build[k])return;sfx.remove();if(window.scene3d)scene3d.burst(k);delete build[k];isSample=false;preview=null;save();step=Math.min(step,maxStep());toast(`ถอด${META[k].t}ออกแล้ว ลากการ์ดจากชั้นวางมาใส่ชิ้นใหม่ได้เลย`);render()}
+function removePart(k){if(!build[k])return;snap();sfx.remove();if(window.scene3d)scene3d.burst(k);delete build[k];isSample=false;preview=null;save();step=Math.min(step,maxStep());toast(`ถอด${META[k].t}ออกแล้ว ลากการ์ดจากชั้นวางมาใส่ชิ้นใหม่ได้เลย`,true);render()}
 function goPart(k){if(idx(k)!==step)go(idx(k))}
 function go(i){const was=step;step=Math.max(0,Math.min(i,maxStep()));preview=null;userMoved=false;render(true);
  if(step!==was){if(step===ORDER.length){const sig=ORDER.map(k=>build[k]?build[k].id:'').join();if(sig!==celebrated){celebrated=sig;sfx.win();confetti();fx('ok')}else sfx.step()}else sfx.step()}}
@@ -440,15 +465,16 @@ function renderRail(){
 let io=null;
 function renderPanel(fresh){
  const k=step<ORDER.length?ORDER[step]:'sum',m=META[k],L=$('list');
- const tot=ORDER.length+1,pool=k==='sum'?[]:DATA[k].filter(it=>passFmt(k,it)),nb=pool.filter(it=>check(k,it).block.length).length,na=pool.length-nb;
+ const tot=ORDER.length+1,pool=k==='sum'?[]:DATA[k].filter(it=>passAll(k,it)),nb=pool.filter(it=>check(k,it).block.length).length,na=pool.length-nb;
  $('ph').innerHTML=`<div class="prog" aria-hidden="true">${[...Array(tot).keys()].map(i=>`<i class="${i===step?'c':(i<ORDER.length&&build[ORDER[i]])?'d':''}"></i>`).join('')}</div>${isSample?'<div class="eb"><em>สเปคตัวอย่าง</em></div>':''}<h1>${m.h}</h1><p>${m.p}</p>${k==='sum'?'':`<div class="cnt"><span><b>${na}</b>รุ่นที่ใส่ได้</span>${nb?`<span class="x"><b>${nb}</b>รุ่นใส่ไม่ได้</span>`:''}</div>`}${fmtBar(k)}`;
  APP.style.setProperty('--acc',ACC[k][0]);APP.style.setProperty('--acc-ink',ACC[k][1]);
  if(fresh){const ph=$('ph');ph.classList.remove('enter');void ph.offsetWidth;ph.classList.add('enter')}
- const keep=fresh?0:L.scrollTop;
+ const tl=$('tools');tl.hidden=k==='sum';if(k!=='sum'&&tl.dataset.k!==k){tl.dataset.k=k;$('q').value=qs[k]||'';$('sort').innerHTML='<option value="">เรียงตามค่าเริ่มต้น</option>'+SORTS[k].map(o=>`<option value="${o[0]}">${o[1]}</option>`).join('');$('sort').value=sorts[k]||''}
+ const SC=$('scroll'),keep=fresh?0:SC.scrollTop;
  if(k==='sum'){L.innerHTML=summaryHTML()}
  else{
   const ok=[],bad=[];
-  DATA[k].forEach((it,i)=>{if(!passFmt(k,it))return;const r=check(k,it);(r.block.length?bad:ok).push({it,i,r})});
+  DATA[k].forEach((it,i)=>{if(!passAll(k,it))return;const r=check(k,it);(r.block.length?bad:ok).push({it,i,r})});
   const card=({it,i,r})=>{
    const d=describe(k,it),sel=build[k]&&build[k].id===it.id,lock=r.block.length>0,pv=preview&&preview.k===k&&preview.it.id===it.id;
    let extra='';
@@ -459,16 +485,18 @@ function renderPanel(fresh){
    }
    return `<div class="card ${sel?'sel':''} ${lock?'lock':''} ${pv?'pv':''}" role="button" tabindex="0" data-k="${k}" data-i="${i}" aria-pressed="${!!sel}"><div class="pic"><img data-thumb="${k}:${it.id}" alt="" draggable="false">${k==='case'?`<span class="fmt">${it.mb.length>1?NAME[it.mb[0]]+' ถึง '+NAME[it.mb[it.mb.length-1]]:NAME[it.mb[0]]}</span>`:k==='mb'||k==='psu'?`<span class="fmt">${NAME[it.ff]||it.ff}</span>`:''}${sel?'<span class="tag on">ใส่อยู่</span>':lock?`<span class="tag no">${SVG.lock}ใส่ไม่ได้</span>`:'<span class="grip">ลากไปวาง</span>'}</div><div class="tx"><div class="n">${esc(d.n)}</div><div class="sub">${esc(d.sub)}</div><dl>${d.sp.map(s=>`<dt>${esc(s[0])}</dt><dd>${esc(s[1])}</dd>`).join('')}</dl>${it.p?`<div class="pr">${baht(it.p)}</div>`:''}${extra}</div></div>`;
   };
+  if(sorts[k]&&CMP[sorts[k]]){const f=(a,b)=>CMP[sorts[k]](a.it,b.it);ok.sort(f);bad.sort(f)}
   let h='<div class="grid">';
+  if(!ok.length&&!bad.length)h+=`<div class="none"><span>ไม่พบรุ่นที่ตรงกับ${qs[k]?` "${esc(qs[k])}"`:'ตัวกรองนี้'}</span><button type="button" data-act="clearq">ล้างการค้นหาและตัวกรอง</button></div>`;
   if(optional(k))h+=`<div class="skip">${SVG.ok}<span>${k==='gpu'?'ซีพียูที่เลือกมีกราฟิกในตัว ข้ามขั้นนี้ได้ถ้าไม่เล่นเกมหนัก':'ซีพียูที่เลือกมีพัดลมแถมในกล่อง ข้ามขั้นนี้ได้'}</span></div>`;
   h+=ok.map(card).join('');
   if(bad.length)h+=`<div class="sec">${SVG.lock} ใส่กับเครื่องนี้ไม่ได้ ${bad.length} รุ่น</div>`+bad.map(card).join('');
   L.innerHTML=h+'</div>';
  }
- L.scrollTop=keep;
+ SC.scrollTop=keep;
  if(io)io.disconnect();
  if(fresh&&!reduceUI&&window.IntersectionObserver&&k!=='sum'){
-  let first=true;io=new IntersectionObserver(es=>{let n=0;for(const e of es)if(e.isIntersecting){e.target.style.setProperty('--d',(first?n*55:(n%2)*60)+'ms');n++;e.target.classList.add('in');io.unobserve(e.target)}first=false},{root:L,rootMargin:'0px 0px -6% 0px',threshold:.08});
+  let first=true;io=new IntersectionObserver(es=>{let n=0;for(const e of es)if(e.isIntersecting){e.target.style.setProperty('--d',(first?n*55:(n%2)*60)+'ms');n++;e.target.classList.add('in');io.unobserve(e.target)}first=false},{root:SC,rootMargin:'0px 0px -6% 0px',threshold:.08});
   L.querySelectorAll('.card').forEach(c=>{c.classList.add('pre');io.observe(c)});
  }
  const nx=$('next');$('back').style.visibility=step?'visible':'hidden';nx.classList.remove('go');nx.classList.toggle('cp',k==='sum');if(justSel){void nx.offsetWidth;nx.classList.add('go')}
@@ -482,6 +510,7 @@ function summaryHTML(){
  if(b.mb&&c)ck.push(`เมนบอร์ดขนาด ${NAME[b.mb.ff]} อยู่ในขนาดที่เคสรองรับ (${c.mb.map(f=>NAME[f]).join(' / ')})`);
  if(b.cpu&&b.mb)ck.push(`ซีพียูกับเมนบอร์ดใช้ช่องเสียบ ${b.mb.sock} ตรงกัน`);
  if(b.ram&&b.mb)ck.push(`แรม ${b.ram.type} ตรงกับเมนบอร์ด ใช้ ${b.ram.q} จาก ${b.mb.rs} ช่อง`);
+ if(b.ssd&&b.mb&&b.mb.m2l&&b.mb.m2l.length)ck.push(`SSD ขนาด M.2 22${b.ssd.len} อยู่ในความยาวที่ช่องบนเมนบอร์ดรองรับ`);
  if(b.gpu&&c)ck.push(`การ์ดจอยาว ${mm(b.gpu.len)} มม. เคสรับได้ ${mm(c.gpuMax)} มม. เหลือที่ว่าง ${mm(c.gpuMax-b.gpu.len)} มม.`);
  if(b.cool&&!b.cool.aio&&c)ck.push(`ฮีทซิงก์สูง ${mm(b.cool.h)} มม. เคสรับได้ ${mm(c.coolMax)} มม.`);
  if(b.psu)ck.push(`เครื่องใช้ไฟประมาณ ${p.load} วัตต์ พาวเวอร์ซัพพลายจ่ายได้ ${b.psu.w} วัตต์`);
@@ -508,16 +537,21 @@ let suppressClick=false;
 $('rail').addEventListener('click',e=>{const b=e.target.closest('.slot');if(!b||b.disabled)return;const i=+b.dataset.i;if(i===step)setFold(!APP.classList.contains('fold'));else{setFold(false);go(i)}});
 const LIST=$('list');
 function cardItem(c){return{k:c.dataset.k,it:DATA[c.dataset.k][+c.dataset.i]}}
-LIST.addEventListener('click',e=>{if(suppressClick){suppressClick=false;return}const g=e.target.closest('[data-go]');if(g){go(+g.dataset.go);return}const ac=e.target.closest('[data-act]');if(ac){sfx.tick();if(ac.dataset.act==='link')copyText(shareUrl(),'คัดลอกลิงก์แล้ว ส่งให้ใครก็เปิดเห็นสเปคนี้');else copyText(listText(),'คัดลอกรายการสเปคแล้ว');return}const c=e.target.closest('.card');if(c){const{k,it}=cardItem(c);select(k,it)}});
+LIST.addEventListener('click',e=>{if(suppressClick){suppressClick=false;return}const g=e.target.closest('[data-go]');if(g){go(+g.dataset.go);return}const ac=e.target.closest('[data-act]');if(ac){sfx.tick();if(ac.dataset.act==='clearq'){const k=ORDER[step];qs[k]='';fmt[k]=null;$('q').value='';render(true);return}if(ac.dataset.act==='link')copyText(shareUrl(),'คัดลอกลิงก์แล้ว ส่งให้ใครก็เปิดเห็นสเปคนี้');else copyText(listText(),'คัดลอกรายการสเปคแล้ว');return}const c=e.target.closest('.card');if(c){const{k,it}=cardItem(c);select(k,it)}});
 LIST.addEventListener('keydown',e=>{if(e.key!=='Enter'&&e.key!==' ')return;const c=e.target.closest('.card');if(c){e.preventDefault();const{k,it}=cardItem(c);select(k,it)}});
 $('back').addEventListener('click',()=>go(step-1));
+$('q').addEventListener('input',()=>{qs[ORDER[step]]=$('q').value.trim();renderPanel(false);$('scroll').scrollTop=Math.min($('scroll').scrollTop,$('ph').offsetHeight);paintThumbs()});
+$('sort').addEventListener('change',()=>{sorts[ORDER[step]]=$('sort').value;sfx.tick();renderPanel(true);paintThumbs()});
+$('toast').addEventListener('click',e=>{if(e.target.id==='undo')undo()});
+/* never leave a card hidden while it is on screen, even if the observer is late */
+$('scroll').addEventListener('scroll',()=>{const b=$('scroll').getBoundingClientRect().bottom;LIST.querySelectorAll('.card.pre:not(.in)').forEach(c=>{if(c.getBoundingClientRect().top<b)c.classList.add('in')})},{passive:true});
 $('next').addEventListener('click',()=>{
  if(step<ORDER.length){go(step+1);return}
  sfx.tick();copyText(shareUrl(),'คัดลอกลิงก์แล้ว ส่งให้ใครก็เปิดเห็นสเปคนี้');
 });
 function sndLabel(){$('snd').textContent=SND.on?'เสียง เปิด':'เสียง ปิด';$('snd').setAttribute('aria-pressed',String(SND.on))}
 sndLabel();$('snd').addEventListener('click',()=>{SND.on=!SND.on;try{localStorage.setItem('pcb3d-snd',SND.on?'1':'0')}catch(e){}sndLabel();if(SND.on)sfx.tick()});
-$('reset').addEventListener('click',()=>{sfx.remove();build={};preview=null;isSample=false;step=0;save();render(true);toast('ล้างสเปคแล้ว เริ่มจากเลือกเคสได้เลย')});
+$('reset').addEventListener('click',()=>{snap();sfx.remove();build={};preview=null;isSample=false;step=0;save();render(true);toast('ล้างสเปคแล้ว เริ่มจากเลือกเคสได้เลย',true)});
 
 function setFold(f){if(APP.classList.contains('fold')===f)return;APP.classList.toggle('fold',f);$('fold').setAttribute('aria-expanded',String(!f));$('fold').setAttribute('aria-label',f?'แสดงรายการชิ้นส่วน':'ซ่อนรายการชิ้นส่วน');$('shelf').inert=f;sfx.fold();userMoved=false;if(window.scene3d)scene3d.sync()}
 $('fold').addEventListener('click',()=>setFold(!APP.classList.contains('fold')));
