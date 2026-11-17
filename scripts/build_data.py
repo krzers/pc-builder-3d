@@ -41,7 +41,7 @@ out['mb']=L
 P=load('CPU'); L=[]
 for key in ['AMD Ryzen 5 5600','AMD Ryzen 5 5600G','AMD Ryzen 5 7600','AMD Ryzen 5 9600X','AMD Ryzen 7 7800X3D','AMD Ryzen 7 9800X3D','AMD Ryzen 9 9950X3D','Intel Core i5 12400F','Intel Core i5 14400F','Intel Core i5 14600K','Intel Core i7 14700K','Intel Core Ultra 5 245K','Intel Core Ultra 7 265K']:
     x=pick(P,key,True); s=x['specifications']; ig=s.get('integratedGraphics') or {}
-    L.append(dict(id=x['opendb_id'][:8],n=nm(x),sock=x['socket'],c=x['cores']['total'],t=x['cores']['threads'],tdp=s['tdp'],ig=('' if (ig.get('model') or 'None')=='None' else ig['model']),fan=bool(s.get('includesCooler')),ram=s['memory']['types']))
+    L.append(dict(id=x['opendb_id'][:8],n=nm(x),sock=x['socket'],c=x['cores']['total'],t=x['cores']['threads'],tdp=s['tdp'],ppt=s.get('ppt') or s['tdp'],ig=('' if (ig.get('model') or 'None')=='None' else ig['model']),fan=bool(s.get('includesCooler')),ram=s['memory']['types']))
 out['cpu']=L
 R=load('RAM'); L=[]
 def ram(t,q,c,sp,pref):
